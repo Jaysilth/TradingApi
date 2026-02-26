@@ -93,6 +93,14 @@ spring.jpa.database-platform=org.hibernate.dialect.PostgreSQLDialect
 3. Build the project: mvn clean install
 4. Run the application: mvn spring-boot:run
 
+🌐 Test the API
+
+Once running, the app starts on:http://localhost:8080
+
+Test endpoint example:GET /hello
+
+Response:Trading API is active
+
 🧩 Planned Features (Next Phases)
 
 User authentication & authorization (Spring Security + JWT)
