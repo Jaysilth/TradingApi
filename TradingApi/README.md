@@ -102,90 +102,76 @@ Test endpoint example:GET /hello
 Response:Trading API is active
 
 ## 📌 Project Milestones
-## ✅ Completed
-## Project Setup
-Spring Boot with Maven, PostgreSQL, Lombok, Validation, DevTools
 
-Project structured into controller, service, repository, entity, dto, exception, config, util
+### ✅ Completed
+- Project Setup
+    - Spring Boot with Maven, PostgreSQL, Lombok, Validation, DevTools
+    - Project structured into controller, service, repository, entity, dto, exception, config, util
+    - GitHub repository initialized
 
-GitHub repository initialized
+- Database & Entities
+    - User entity (id, username, email, password, createdAt)
+    - Trade entity (id, symbol, entryPrice, exitPrice, stopLoss, lotSize, tradeDirection, tradeDate, notes)
+    - TradeDirection enum (BUY, SELL)
+    - One-to-many and many-to-one relationships between User and Trade
+    - Clean JSON responses using @JsonManagedReference / @JsonBackReference
 
-## Database & Entities
-User entity with id, username, email, password, createdAt
+- Repositories
+    - UserRepo and TradeRepo with standard CRUD and custom queries
 
-Trade entity with id, symbol, entryPrice, exitPrice, stopLoss, lotSize, tradeDirection, tradeDate, notes
+- Service Layer
+    - TradeService with:
+        - DTO validation
+        - Entity mapping
+        - Stop-loss and trading logic validation
+        - Profit/Loss and Risk/Reward calculation
+        - Custom exceptions (UserNotFoundException, TradeValidationException)
 
-TradeDirection enum created (BUY, SELL)
+- DTOs
+    - TradeRequestDto implemented
 
-One-to-many and many-to-one relationships between User and Trade
+- Controllers
+    - UserController and TradeController implemented
+    - Endpoints tested with Postman for happy paths and exception cases
 
-Clean JSON responses with @JsonManagedReference / @JsonBackReference
-## Repositories
-UserRepo and TradeRepo with standard CRUD and custom queries
+- Validation & Error Handling
+    - Null checks for trade input
+    - Stop-loss rules validated for BUY/SELL
+    - Risk = 0 check implemented
+    - Custom exceptions for user not found and invalid trades
 
-## Service Layer
-TradeService with:
+- Testing
+    - Verified happy paths: create user, create trade, fetch user/trades
+    - Verified exception paths: invalid stop-loss, missing fields, non-existent users
+    - Clean JSON output verified
 
-DTO validation
+### ⚠️ Planned Features (Next Phases)
+- User Security
+    - Authentication & authorization (Spring Security + JWT)
+    - Password hashing & secure login
 
-Entity mapping
+- Trade CRUD
+    - Update and Delete endpoints for trades and users
 
-Stop-loss and trading logic validation
+- Validation Improvements
+    - DTO validation using @Valid annotations for automated field checks
 
-Profit/Loss and Risk/Reward calculation
+- Analytics & Reporting
+    - Trade performance analytics
+    - Risk/reward and profit/loss summaries
+    - Filtering and search endpoints for trades
 
-Exception handling (UserNotFoundException, TradeValidationException)
-## DTOs
-TradeRequestDto implemented
+- API Documentation
+    - Swagger / OpenAPI for interactive REST API docs
 
-## Controllers
-UserController and TradeController implemented
+- Testing
+    - Unit and integration tests for service and controller layers
 
-Endpoints tested with Postman for both happy paths and exception cases
+- Deployment & DevOps
+    - Docker support for containerization
 
-## Validation & Error Handling
-
-Null checks for trade input
-
-Stop-loss rules validated for BUY/SELL
-
-Risk = 0 check implemented
-
-Custom exceptions for user not found and invalid trades
-
-## Testing
-Verified happy paths: create user, create trade, fetch user/trades
-
-Verified exception paths: invalid stop-loss, missing fields, non-existent users
-
-Clean JSON output verified
-
-
-## 🧩 Planned Features (Next Phases)
-
-User authentication & authorization (Spring Security + JWT)
-
-Trade CRUD operations (Update, Delete)
-
-Trade performance analytics
-
-Risk management metrics
-
-REST API documentation (Swagger / OpenAPI)
-
-DTO validation
-
-Unit & integration testing
-
-Docker support
-
-Advanced analytics: profit/loss reports, risk/reward summaries
-
-Filtering and search endpoints for trades
-
-DTO abstraction for API layer for better security
-
-Frontend integration for interactive trading journal
+- Frontend Integration
+    - React / Vue / Angular frontend to consume the API
 
 ## 📌 Learning Goals
 
