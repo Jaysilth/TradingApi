@@ -1,7 +1,9 @@
 package com.journal.TradingApi.exception;
 
+import com.journal.TradingApi.exception.custom.TradeNotFoundException;
 import com.journal.TradingApi.exception.custom.TradeValidationException;
 import com.journal.TradingApi.exception.custom.UserNotFoundException;
+import com.journal.TradingApi.exception.custom.UserValidationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ControllerAdvice;
@@ -54,6 +56,26 @@ public class GlobalExceptionHandler {
         response.put("timestamp", LocalDateTime.now());
         response.put("status", HttpStatus.BAD_REQUEST.value());
         response.put("error", "Invalid Trade");
+        response.put("message", ex.getMessage());
+        return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
+    }
+
+    @ExceptionHandler(TradeNotFoundException.class)
+    public ResponseEntity<Map<String, Object>> handleTradeNotFound(TradeNotFoundException ex) {
+        Map<String, Object> response = new HashMap<>();
+        response.put("timestamp", LocalDateTime.now());
+        response.put("status", HttpStatus.NOT_FOUND.value());
+        response.put("error", "Trade Not Found");
+        response.put("message", ex.getMessage());
+        return new ResponseEntity<>(response, HttpStatus.NOT_FOUND);
+    }
+
+    @ExceptionHandler(UserValidationException.class)
+    public ResponseEntity<Map<String, Object>> handleUserValidation(UserValidationException ex) {
+        Map<String, Object> response = new HashMap<>();
+        response.put("timestamp", LocalDateTime.now());
+        response.put("status", HttpStatus.BAD_REQUEST.value());
+        response.put("error", "Invalid User creation");
         response.put("message", ex.getMessage());
         return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
     }

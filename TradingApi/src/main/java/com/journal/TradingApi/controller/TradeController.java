@@ -1,6 +1,7 @@
 package com.journal.TradingApi.controller;
 
 import com.journal.TradingApi.dto.TradeRequestDto;
+import com.journal.TradingApi.dto.TradeUpdateDto;
 import com.journal.TradingApi.model.Trade;
 import com.journal.TradingApi.service.TradeService;
 import lombok.RequiredArgsConstructor;
@@ -9,7 +10,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-
 @RestController
 @RequestMapping("/api/trades")
 @RequiredArgsConstructor
@@ -37,5 +37,20 @@ public class TradeController {
     public ResponseEntity<Trade> getTradeById(@PathVariable Long tradeId) {
         Trade trade = tradeService.getTradeById(tradeId);
         return new ResponseEntity<>(trade, HttpStatus.OK);
+    }
+
+    // 4️⃣ Update a trade
+    @PutMapping("/{tradeId}")
+    public ResponseEntity<Trade> updateTrade(@PathVariable Long tradeId,
+                                             @RequestBody TradeUpdateDto dto) {
+        Trade updatedTrade = tradeService.updateTrade(tradeId, dto);
+        return ResponseEntity.ok(updatedTrade);
+    }
+
+    // 5️⃣ Delete a trade
+    @DeleteMapping("/{tradeId}")
+    public ResponseEntity<String> deleteTrade(@PathVariable Long tradeId) {
+        tradeService.deleteTrade(tradeId);
+        return ResponseEntity.ok("Trade deleted successfully");
     }
 }
