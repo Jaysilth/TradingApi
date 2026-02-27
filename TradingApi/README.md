@@ -93,7 +93,7 @@ spring.jpa.database-platform=org.hibernate.dialect.PostgreSQLDialect
 3. Build the project: mvn clean install
 4. Run the application: mvn spring-boot:run
 
-🌐 Test the API
+## 🌐 Test the API
 
 Once running, the app starts on:http://localhost:8080
 
@@ -101,11 +101,71 @@ Test endpoint example:GET /hello
 
 Response:Trading API is active
 
-🧩 Planned Features (Next Phases)
+## 📌 Project Milestones
+## ✅ Completed
+## Project Setup
+Spring Boot with Maven, PostgreSQL, Lombok, Validation, DevTools
+
+Project structured into controller, service, repository, entity, dto, exception, config, util
+
+GitHub repository initialized
+
+## Database & Entities
+User entity with id, username, email, password, createdAt
+
+Trade entity with id, symbol, entryPrice, exitPrice, stopLoss, lotSize, tradeDirection, tradeDate, notes
+
+TradeDirection enum created (BUY, SELL)
+
+One-to-many and many-to-one relationships between User and Trade
+
+Clean JSON responses with @JsonManagedReference / @JsonBackReference
+## Repositories
+UserRepo and TradeRepo with standard CRUD and custom queries
+
+## Service Layer
+TradeService with:
+
+DTO validation
+
+Entity mapping
+
+Stop-loss and trading logic validation
+
+Profit/Loss and Risk/Reward calculation
+
+Exception handling (UserNotFoundException, TradeValidationException)
+## DTOs
+TradeRequestDto implemented
+
+## Controllers
+UserController and TradeController implemented
+
+Endpoints tested with Postman for both happy paths and exception cases
+
+## Validation & Error Handling
+
+Null checks for trade input
+
+Stop-loss rules validated for BUY/SELL
+
+Risk = 0 check implemented
+
+Custom exceptions for user not found and invalid trades
+
+## Testing
+Verified happy paths: create user, create trade, fetch user/trades
+
+Verified exception paths: invalid stop-loss, missing fields, non-existent users
+
+Clean JSON output verified
+
+
+## 🧩 Planned Features (Next Phases)
 
 User authentication & authorization (Spring Security + JWT)
 
-Trade CRUD operations (Create, Read, Update, Delete)
+Trade CRUD operations (Update, Delete)
 
 Trade performance analytics
 
@@ -115,13 +175,19 @@ REST API documentation (Swagger / OpenAPI)
 
 DTO validation
 
-Global exception handling
-
 Unit & integration testing
 
 Docker support
 
-📌 Learning Goals
+Advanced analytics: profit/loss reports, risk/reward summaries
+
+Filtering and search endpoints for trades
+
+DTO abstraction for API layer for better security
+
+Frontend integration for interactive trading journal
+
+## 📌 Learning Goals
 
 This project is built to practice and demonstrate:
 
@@ -137,16 +203,18 @@ Clean code principles
 
 Real-world backend project structure
 
-🤝 Contributing
+## 🤝 Contributing
 
 Contributions are welcome.
 Feel free to fork the repository and submit pull requests.
 
-📄 License
+## 📄 License
 
 This project is for educational and personal learning purposes.
+The comments were added with chatgpt to help boost understanding of why some coding decisions were made.
+I was fully focused on building a scalable solution.
 
-👤 Author
+## 👤 Author
 
 John Onadipe
 Backend Developer (Java & Spring Boot)
