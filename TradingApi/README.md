@@ -145,13 +145,16 @@ Response:Trading API is active
     - Verified exception paths: invalid stop-loss, missing fields, non-existent users
     - Clean JSON output verified
 
+
+- Trade CRUD
+    - Update and Delete endpoints for trades and users
+
+
+
 ### ⚠️ Planned Features (Next Phases)
 - User Security
     - Authentication & authorization (Spring Security + JWT)
     - Password hashing & secure login
-
-- Trade CRUD
-    - Update and Delete endpoints for trades and users
 
 - Validation Improvements
     - DTO validation using @Valid annotations for automated field checks
