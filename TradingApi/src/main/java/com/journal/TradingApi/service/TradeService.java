@@ -1,6 +1,7 @@
 package com.journal.TradingApi.service;
 
 import com.journal.TradingApi.dto.TradeRequestDto;
+import com.journal.TradingApi.dto.TradeSummaryDto;
 import com.journal.TradingApi.dto.TradeUpdateDto;
 import com.journal.TradingApi.exception.custom.TradeNotFoundException;
 import com.journal.TradingApi.exception.custom.TradeValidationException;
@@ -29,20 +30,21 @@ public class TradeService {
         User user = getUserById(userId);
         Trade trade = mapToEntity(dto, user);
 
-        validateTrade(trade);
-        recalculateMetrics(trade);
+        validateTrade(trade); // ✅ validation now allows losses
+        recalculateMetrics(trade); // profit/loss dynamically calculated
 
         return tradeRepo.save(trade);
     }
 
     // ================= UPDATE TRADE =================
     public Trade updateTrade(Long tradeId, TradeUpdateDto dto) {
-
         Trade trade = getTradeOrThrow(tradeId);
 
-        // Prevent modification if trade is closed
+        // Prevent modification if trade is closed (optional)
         if (trade.getExitPrice() != null) {
-            throw new TradeValidationException("You cannot edit trades after they have been created");
+            throw new TradeValidationException(
+                    "You cannot edit trades after they have been created"
+            );
         }
 
         // Partial updates
@@ -73,24 +75,48 @@ public class TradeService {
         return getTradeOrThrow(tradeId);
     }
 
+    // ================= TRADE SUMMARY =================
+    public TradeSummaryDto getTradeSummary(Long userId) {
+        List<Trade> trades = tradeRepo.findByUserId(userId);
+
+        long totalTrades = 0;
+        long wins = 0;
+        long losses = 0;
+        double netProfit = 0;
+
+        for (Trade trade : trades) {
+            totalTrades++;
+            double profit = calculateProfit(trade);
+            netProfit += profit;
+
+            if (profit > 0) wins++;
+            else if (profit < 0) losses++;
+        }
+
+        double winRate = totalTrades == 0 ? 0 : ((double) wins / totalTrades) * 100;
+        winRate = Math.round(winRate * 100.0) / 100.0;
+        netProfit = Math.round(netProfit * 100.0) / 100.0;
+
+        return new TradeSummaryDto(totalTrades, wins, losses, winRate, netProfit);
+    }
+
     // ================= HELPER METHODS =================
     private Trade getTradeOrThrow(Long tradeId) {
         return tradeRepo.findById(tradeId)
                 .orElseThrow(() -> new TradeNotFoundException("Trade with ID " + tradeId + " not found"));
     }
 
-    private void validateTradeInput(TradeRequestDto dto) {
-        if (dto.getSymbol() == null || dto.getSymbol().isBlank()||
-        dto.getEntryPrice() == null ||
-                dto.getExitPrice() == null ||
-                dto.getStopLoss() == null ||
-                dto.getLotSize() == null ||
-                dto.getTradeDirection() == null) {
+    private void validateTradeInput(TradeRequestDto dto) {if (dto.getSymbol() == null || dto.getSymbol().isBlank()
+            || dto.getEntryPrice() == null
+            || dto.getExitPrice() == null
+            || dto.getStopLoss() == null
+            || dto.getLotSize() == null
+            || dto.getTradeDirection() == null) {
 
-            throw new TradeValidationException(
-                    "All trade fields including symbol, entryPrice, exitPrice, stopLoss, lotSize, tradeDirection must be provided"
-            );
-        }
+        throw new TradeValidationException(
+                "All trade fields including symbol, entryPrice, exitPrice, stopLoss, lotSize, tradeDirection must be provided"
+        );
+    }
     }
 
     private User getUserById(Long userId) {
@@ -112,25 +138,22 @@ public class TradeService {
         return trade;
     }
 
+    // ================= DOMAIN VALIDATION =================
     private void validateTrade(Trade trade) {
-
-        if (trade.getTradeDirection() == TradeDirection.BUY) {
-            if (trade.getStopLoss() >= trade.getEntryPrice()) {
-                throw new TradeValidationException("Stop loss must be below entry price for BUY trade");
-            }
-            if (trade.getExitPrice() <= trade.getEntryPrice()) {
-                throw new TradeValidationException("Exit price must be above entry price for BUY trade");
-            }
+        // ✅ only enforce stop loss direction
+        if (trade.getTradeDirection() == TradeDirection.BUY && trade.getStopLoss() >= trade.getEntryPrice()) {
+            throw new TradeValidationException("Stop loss must be below entry price for BUY trade");
         }
 
-        if (trade.getTradeDirection() == TradeDirection.SELL) {
-            if (trade.getStopLoss() <= trade.getEntryPrice()) {
-                throw new TradeValidationException("Stop loss must be above entry price for SELL trade");
-            }
-            if (trade.getExitPrice() >= trade.getEntryPrice()) {
-                throw new TradeValidationException("Exit price must be below entry price for SELL trade");
-            }
+        if (trade.getTradeDirection() == TradeDirection.SELL && trade.getStopLoss() <= trade.getEntryPrice()) {
+            throw new TradeValidationException("Stop loss must be above entry price for SELL trade");
         }
+
+        if (trade.getLotSize() <= 0) {
+            throw new TradeValidationException("Lot size must be positive");
+        }
+
+        // ❌ removed exitPrice restrictions to allow losses
     }
 
     private void recalculateMetrics(Trade trade) {
@@ -141,23 +164,23 @@ public class TradeService {
 
         double riskReward = Math.round((reward / risk) * 100.0) / 100.0;
 
-        trade.setProfitLoss(reward);
+        trade.setProfitLoss(reward); // can be negative
         trade.setRiskReward(riskReward);
     }
 
     private double calculateRisk(Trade trade) {
-        if (trade.getTradeDirection() == TradeDirection.BUY) {
-            return (trade.getEntryPrice() - trade.getStopLoss()) * trade.getLotSize();
-        } else {
-            return (trade.getStopLoss() - trade.getEntryPrice()) * trade.getLotSize();
-        }
+        return Math.abs(trade.getEntryPrice() - trade.getStopLoss()) * trade.getLotSize();
     }
 
     private double calculateReward(Trade trade) {
-        if (trade.getTradeDirection() == TradeDirection.BUY) {
-            return (trade.getExitPrice() - trade.getEntryPrice()) * trade.getLotSize();
-        } else {
-            return (trade.getEntryPrice() - trade.getExitPrice()) * trade.getLotSize();
-        }
+        return (trade.getTradeDirection() == TradeDirection.BUY)
+                ? (trade.getExitPrice() - trade.getEntryPrice()) * trade.getLotSize()
+                : (trade.getEntryPrice() - trade.getExitPrice()) * trade.getLotSize();
+    }
+
+    private double calculateProfit(Trade trade) {
+        return (trade.getTradeDirection() == TradeDirection.BUY)
+                ? (trade.getExitPrice() - trade.getEntryPrice()) * trade.getLotSize()
+                : (trade.getEntryPrice() - trade.getExitPrice()) * trade.getLotSize();
     }
 }

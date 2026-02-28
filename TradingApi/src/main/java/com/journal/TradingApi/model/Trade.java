@@ -23,11 +23,16 @@ public class Trade {
     private Double stopLoss;
     private Double lotSize;
 
+
     @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
     private TradeDirection tradeDirection; // buy or sell
 
-    private Double profitLoss;// rather than storing lets compute them in the service layer
-    private Double riskReward; //calculate them when creating trade, updating trade or fetching analytics
+    @Column(nullable = false)
+    private Double profitLoss;
+
+    @Column(nullable = false)
+    private Double riskReward;
     private LocalDateTime tradeDate;
 
     @Column(length = 1000)
@@ -46,4 +51,5 @@ public class Trade {
     public void setRiskReward(double riskReward) {
         this.riskReward = riskReward;
     }
+
 }
