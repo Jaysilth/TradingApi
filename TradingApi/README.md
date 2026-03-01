@@ -1,29 +1,27 @@
-# Trading API – Trading Journal Backend (Phase 1)
+# Trading API – Trading Journal Backend
 
-A Spring Boot REST API for managing and analyzing trading journal data.  
-This project is being built in phases, starting with core backend structure and database connectivity.
+A Spring Boot REST API for managing and analyzing trading journal data.
+
+This project is being built in structured development phases to simulate real-world backend engineering practices — including validation, performance calculations, pagination, filtering, and security (coming next).
 
 ---
 
 ## 🚀 Project Overview
 
-The Trading API is a backend service designed to help traders record, manage, and analyze their trades over time.
+The Trading API is a backend service designed to help traders:
 
-Phase 1 focuses on:
-- Project setup
-- Database connection
-- Application structure
-- Basic API testing
+- Record trades
+- Validate trade logic
+- Calculate profit/loss automatically
+- Track risk/reward ratios
+- Analyze performance over time
+- Retrieve paginated and filtered trade data
 
-Future phases will include:
-- Authentication & authorization (Spring Security)
-- Trade CRUD operations
-- Analytics & performance metrics
-- Reporting & dashboards
+This project is intentionally built step-by-step to reflect how scalable backend systems evolve.
 
 ---
 
-## 🛠️ Tech Stack
+## 🛠 Tech Stack
 
 - Java 21
 - Spring Boot 4.0.3
@@ -37,46 +35,123 @@ Future phases will include:
 
 ## 📁 Project Structure
 
+controller/
+service/
+repository/
+entity/
+dto/
+exception/
+config/
+util/
+Layered Architecture:
 
+Controller → Service → Repository → Database
 
 ---
 
-## ✔️ Features (Phase 1)
+## ✔️ Implemented Features (Current State)
 
+### 🧱 Core Infrastructure
 - Spring Boot project initialized
-- PostgreSQL database connection configured
-- Application starts successfully with embedded Tomcat server
-- Test endpoint created to verify API functionality
-- JPA and Hibernate configured
-- Clean layered architecture (Controller → Service → Repository)
-- `.gitignore` configured to exclude build files and secrets
+- PostgreSQL database connected
+- JPA & Hibernate configured
+- Clean layered architecture
+- .gitignore configured
 
+---
+
+### 👤 User Management
+- Create User
+- Fetch User
+- Update User
+- Delete User
+- One-to-many relationship with trades
+
+---
+
+### 📊 Trade Engine (Business Logic)
+
+- Create Trade (BUY / SELL)
+- Update Trade
+- Delete Trade
+- Fetch all trades
+- Pagination support
+- Sorting support
+- Whitelisted sorting fields
+- Maximum page size enforcement
+
+---
+
+### 🧠 Trade Validation Rules
+
+- All trade fields required (no open trades — trades are closed by default)
+- Lot size must be positive
+- Stop-loss must follow BUY/SELL rules
+- Risk cannot be zero
+- Supports both profitable and losing trades
+- Throws custom TradeValidationException for invalid inputs
+
+---
+
+### 📈 Automatic Calculations
+
+The system automatically calculates:
+
+- Profit/Loss
+- Risk amount
+- Reward amount
+- Risk-to-Reward ratio
+- Win/Loss classification
+
+Loss trades are fully supported.
+
+---
+
+### 📊 Performance Summary Endpoint
+
+Provides aggregated statistics:
+
+- Total trades
+- Total wins
+- Total losses
+- Win rate
+- Total profit
+- Total loss
+- Net profit
+- Average risk/reward ratio
+
+---
+
+### 📄 Pagination & Sorting
+
+- Pageable implemented via Spring Data
+- Max page size protection
+- Controlled sorting fields
+- Safe API design to prevent abuse
+
+Example:
+
+GET /api/trades/user/{id}?page=0&size=10&sort=tradeDate,desc
 ---
 
 ## ⚙️ Prerequisites
 
-Before running the project, make sure you have:
-
-- Java 21 installed
-- PostgreSQL installed and running
-- Maven installed
-- Git installed
+- Java 21
+- PostgreSQL running
+- Maven
+- Git
 
 ---
 
-## 🗄️ Database Setup
+## 🗄 Database Setup
 
-Create a PostgreSQL database:
+Create the database:
 
-```sql
 CREATE DATABASE trading_journal_db;
-
-```
-
 ---
 
-## Update your application.properties
-````
+## 🔧 application.properties
+
 spring.datasource.url=jdbc:postgresql://localhost:5432/trading_journal_db
 spring.datasource.username=postgres
 spring.datasource.password=your_password
@@ -84,128 +159,96 @@ spring.datasource.password=your_password
 spring.jpa.hibernate.ddl-auto=update
 spring.jpa.show-sql=true
 spring.jpa.database-platform=org.hibernate.dialect.PostgreSQLDialect
+---
 
-````
-▶️ How to Run Locally
+## ▶️ How to Run Locally
 
-1. Clone the repository: git clone https://github.com/Jaysilth/TradingApi.git
-2. Navigate into the project folder: cd TradingApi
-3. Build the project: mvn clean install
-4. Run the application: mvn spring-boot:run
+1. Clone repository
 
-## 🌐 Test the API
+   git clone https://github.com/Jaysilth/TradingApi.git
 
-Once running, the app starts on:http://localhost:8080
+2. Navigate into folder
 
-Test endpoint example:GET /hello
+   cd TradingApi
 
-Response:Trading API is active
+3. Build project
 
-## 📌 Project Milestones
+   mvn clean install
+
+4. Run application
+
+   mvn spring-boot:run
+
+App runs on:
+
+http://localhost:8080
+---
+
+## 🌐 Example Endpoints
+
+### Create Trade
+POST /api/trades/user/{userId}
+### Get Paginated Trades
+GET /api/trades/user/{userId}?page=0&size=10&sort=tradeDate,desc
+### Get Performance Summary
+GET /api/trades/user/{userId}/summary
+---
+
+## 📌 Development Roadmap
 
 ### ✅ Completed
-- Project Setup
-    - Spring Boot with Maven, PostgreSQL, Lombok, Validation, DevTools
-    - Project structured into controller, service, repository, entity, dto, exception, config, util
-    - GitHub repository initialized
+- Core backend structure
+- Trade validation engine
+- Profit/loss calculations
+- Loss trade support
+- Pagination & sorting
+- Performance summary
+- Custom exceptions
+- Clean architecture layering
 
-- Database & Entities
-    - User entity (id, username, email, password, createdAt)
-    - Trade entity (id, symbol, entryPrice, exitPrice, stopLoss, lotSize, tradeDirection, tradeDate, notes)
-    - TradeDirection enum (BUY, SELL)
-    - One-to-many and many-to-one relationships between User and Trade
-    - Clean JSON responses using @JsonManagedReference / @JsonBackReference
+---
 
-- Repositories
-    - UserRepo and TradeRepo with standard CRUD and custom queries
+### 🚀 Next Phases
+- Advanced filtering (symbol, date range, result type)
+- JWT authentication & authorization
+- Global exception handling (@ControllerAdvice)
+- Analytics dashboard endpoints
+- Swagger documentation
+- Unit & integration tests
+- Docker support
+- Frontend integration
 
-- Service Layer
-    - TradeService with:
-        - DTO validation
-        - Entity mapping
-        - Stop-loss and trading logic validation
-        - Profit/Loss and Risk/Reward calculation
-        - Custom exceptions (UserNotFoundException, TradeValidationException)
+---
 
-- DTOs
-    - TradeRequestDto implemented
+## 📚 Learning Goals
 
-- Controllers
-    - UserController and TradeController implemented
-    - Endpoints tested with Postman for happy paths and exception cases
+This project demonstrates:
 
-- Validation & Error Handling
-    - Null checks for trade input
-    - Stop-loss rules validated for BUY/SELL
-    - Risk = 0 check implemented
-    - Custom exceptions for user not found and invalid trades
+- Real-world backend architecture
+- Business logic enforcement in service layer
+- API scalability considerations
+- Defensive programming
+- Trade performance analytics logic
+- Clean and maintainable code structure
 
-- Testing
-    - Verified happy paths: create user, create trade, fetch user/trades
-    - Verified exception paths: invalid stop-loss, missing fields, non-existent users
-    - Clean JSON output verified
-
-
-- Trade CRUD
-    - Update and Delete endpoints for trades and users
-
-
-
-### ⚠️ Planned Features (Next Phases)
-- User Security
-    - Authentication & authorization (Spring Security + JWT)
-    - Password hashing & secure login
-
-- Validation Improvements
-    - DTO validation using @Valid annotations for automated field checks
-
-- Analytics & Reporting
-    - Trade performance analytics
-    - Risk/reward and profit/loss summaries
-    - Filtering and search endpoints for trades
-
-- API Documentation
-    - Swagger / OpenAPI for interactive REST API docs
-
-- Testing
-    - Unit and integration tests for service and controller layers
-
-- Deployment & DevOps
-    - Docker support for containerization
-
-- Frontend Integration
-    - React / Vue / Angular frontend to consume the API
-
-## 📌 Learning Goals
-
-This project is built to practice and demonstrate:
-
-Spring Boot best practices
-
-RESTful API design
-
-Database integration with JPA
-
-Layered architecture
-
-Clean code principles
-
-Real-world backend project structure
+---
 
 ## 🤝 Contributing
 
 Contributions are welcome.
-Feel free to fork the repository and submit pull requests.
+Fork the repository and submit pull requests.
+
+---
 
 ## 📄 License
 
-This project is for educational and personal learning purposes.
-The comments were added with chatgpt to help boost understanding of why some coding decisions were made.
-I was fully focused on building a scalable solution.
+This project is built for educational and professional portfolio purposes.
+
+---
 
 ## 👤 Author
 
-John Onadipe
+John Onadipe  
 Backend Developer (Java & Spring Boot)
 
 GitHub: https://github.com/Jaysilth

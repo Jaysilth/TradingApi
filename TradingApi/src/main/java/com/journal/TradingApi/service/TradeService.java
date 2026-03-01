@@ -1,6 +1,7 @@
 package com.journal.TradingApi.service;
 
 import com.journal.TradingApi.dto.TradeRequestDto;
+import com.journal.TradingApi.dto.TradeResponseDto;
 import com.journal.TradingApi.dto.TradeSummaryDto;
 import com.journal.TradingApi.dto.TradeUpdateDto;
 import com.journal.TradingApi.exception.custom.TradeNotFoundException;
@@ -12,6 +13,10 @@ import com.journal.TradingApi.model.User;
 import com.journal.TradingApi.repo.TradeRepo;
 import com.journal.TradingApi.repo.UserRepo;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -66,9 +71,36 @@ public class TradeService {
     }
 
     // ================= GET METHODS =================
-    public List<Trade> getAllTradesForUser(Long userId) {
+    public Page<TradeResponseDto> getAllTradesForUser(
+            Long userId,
+            int page,
+            int size,
+            String sortBy,
+            String direction
+    ) {
+
+        int MAX_PAGE_SIZE = 50;
+
+        if (size > MAX_PAGE_SIZE) size = MAX_PAGE_SIZE;
+        if (size <= 0) size = 10;
+
+        List<String> allowedSortFields = List.of("tradeDate", "profitLoss", "lotSize");
+
+        if (!allowedSortFields.contains(sortBy)) {
+            sortBy = "tradeDate";
+        }
+
+        Sort sort = direction.equalsIgnoreCase("asc")
+                ? Sort.by(sortBy).ascending()
+                : Sort.by(sortBy).descending();
+
+        Pageable pageable = PageRequest.of(page, size, sort);
+
         User user = getUserById(userId);
-        return tradeRepo.findByUser(user);
+
+        Page<Trade> tradePage = tradeRepo.findByUser(user, pageable);
+
+        return tradePage.map(this::mapToResponseDto);
     }
 
     public Trade getTradeById(Long tradeId) {
@@ -117,6 +149,22 @@ public class TradeService {
                 "All trade fields including symbol, entryPrice, exitPrice, stopLoss, lotSize, tradeDirection must be provided"
         );
     }
+    }
+
+    private TradeResponseDto mapToResponseDto(Trade trade) {
+        return new TradeResponseDto(
+                trade.getId(),
+                trade.getSymbol(),
+                trade.getEntryPrice(),
+                trade.getExitPrice(),
+                trade.getStopLoss(),
+                trade.getLotSize(),
+                trade.getTradeDirection(),
+                trade.getProfitLoss(),
+                trade.getRiskReward(),
+                trade.getTradeDate(),
+                trade.getNotes()
+        );
     }
 
     private User getUserById(Long userId) {

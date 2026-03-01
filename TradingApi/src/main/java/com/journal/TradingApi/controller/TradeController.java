@@ -1,10 +1,12 @@
 package com.journal.TradingApi.controller;
 
 import com.journal.TradingApi.dto.TradeRequestDto;
+import com.journal.TradingApi.dto.TradeResponseDto;
 import com.journal.TradingApi.dto.TradeSummaryDto;
 import com.journal.TradingApi.model.Trade;
 import com.journal.TradingApi.service.TradeService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -26,11 +28,24 @@ public class TradeController {
     }
 
     @GetMapping("/user/{userId}")
-    public ResponseEntity<List<Trade>> getAllTradesForUser(@PathVariable Long userId) {
-        List<Trade> trades = tradeService.getAllTradesForUser(userId);
+    public ResponseEntity<Page<TradeResponseDto>> getAllTradesForUser(
+            @PathVariable Long userId,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size,
+            @RequestParam(defaultValue = "tradeDate") String sortBy,
+            @RequestParam(defaultValue = "desc") String direction
+    ) {
+
+        Page<TradeResponseDto> trades = tradeService.getAllTradesForUser(
+                userId,
+                page,
+                size,
+                sortBy,
+                direction
+        );
+
         return ResponseEntity.ok(trades);
     }
-
     @GetMapping("/{tradeId}")
     public ResponseEntity<Trade> getTradeById(@PathVariable Long tradeId) {
         Trade trade = tradeService.getTradeById(tradeId);
