@@ -12,13 +12,16 @@ import com.journal.TradingApi.model.TradeDirection;
 import com.journal.TradingApi.model.User;
 import com.journal.TradingApi.repo.TradeRepo;
 import com.journal.TradingApi.repo.UserRepo;
+import com.journal.TradingApi.specification.TradeSpecification;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Service
@@ -73,6 +76,10 @@ public class TradeService {
     // ================= GET METHODS =================
     public Page<TradeResponseDto> getAllTradesForUser(
             Long userId,
+            String symbol,
+            String result,
+            LocalDateTime startDate,
+            LocalDateTime endDate,
             int page,
             int size,
             String sortBy,
@@ -96,9 +103,15 @@ public class TradeService {
 
         Pageable pageable = PageRequest.of(page, size, sort);
 
-        User user = getUserById(userId);
+        Specification<Trade> spec = TradeSpecification.filterTrades(
+                userId,
+                symbol,
+                result,
+                startDate,
+                endDate
+        );
 
-        Page<Trade> tradePage = tradeRepo.findByUser(user, pageable);
+        Page<Trade> tradePage = tradeRepo.findAll(spec, pageable);
 
         return tradePage.map(this::mapToResponseDto);
     }
