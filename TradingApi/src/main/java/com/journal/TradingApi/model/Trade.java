@@ -17,10 +17,16 @@ public class Trade {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+
+    @Column(nullable = false)
     private String symbol;
+    @Column(nullable = false)
     private Double entryPrice;
+    @Column(nullable = false)
     private Double exitPrice;
+    @Column(nullable = false)
     private Double stopLoss;
+    @Column(nullable = false)
     private Double lotSize;
 
 
@@ -33,6 +39,7 @@ public class Trade {
 
     @Column(nullable = false)
     private Double riskReward;
+
     private LocalDateTime tradeDate;
 
     @Column(length = 1000)
@@ -43,13 +50,5 @@ public class Trade {
     @JsonBackReference
     private User user;
 
-
-    public void setProfitLoss(double profitLoss) {
-        this.profitLoss = profitLoss;
-    }
-
-    public void setRiskReward(double riskReward) {
-        this.riskReward = riskReward;
-    }
 
 }

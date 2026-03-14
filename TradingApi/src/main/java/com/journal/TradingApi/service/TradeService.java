@@ -48,17 +48,9 @@ public class TradeService {
     public Trade updateTrade(Long tradeId, TradeUpdateDto dto) {
         Trade trade = getTradeOrThrow(tradeId);
 
-        // Prevent modification if trade is closed (optional)
-        if (trade.getExitPrice() != null) {
-            throw new TradeValidationException(
-                    "You cannot edit trades after they have been created"
-            );
-        }
-
         // Partial updates
         if (dto.getEntryPrice() != null) trade.setEntryPrice(dto.getEntryPrice());
         if (dto.getStopLoss() != null) trade.setStopLoss(dto.getStopLoss());
-        if (dto.getLotSize() != null) trade.setLotSize(dto.getLotSize());
         if (dto.getExitPrice() != null) trade.setExitPrice(dto.getExitPrice());
 
         validateTrade(trade);
@@ -86,12 +78,12 @@ public class TradeService {
             String direction
     ) {
 
-        int MAX_PAGE_SIZE = 50;
+        int MAX_PAGE_SIZE = 50;// 50 is the max no of trades that can be returned in one request
 
-        if (size > MAX_PAGE_SIZE) size = MAX_PAGE_SIZE;
+        if (size > MAX_PAGE_SIZE) size = MAX_PAGE_SIZE;// forces the max page size constraint
         if (size <= 0) size = 10;
 
-        List<String> allowedSortFields = List.of("tradeDate", "profitLoss", "lotSize");
+        List<String> allowedSortFields = List.of("tradeDate", "profitLoss", "symbol");
 
         if (!allowedSortFields.contains(sortBy)) {
             sortBy = "tradeDate";
@@ -131,7 +123,7 @@ public class TradeService {
 
         for (Trade trade : trades) {
             totalTrades++;
-            double profit = calculateProfit(trade);
+            double profit = calculateReward(trade);
             netProfit += profit;
 
             if (profit > 0) wins++;
@@ -214,7 +206,6 @@ public class TradeService {
             throw new TradeValidationException("Lot size must be positive");
         }
 
-        // ❌ removed exitPrice restrictions to allow losses
     }
 
     private void recalculateMetrics(Trade trade) {
@@ -239,9 +230,4 @@ public class TradeService {
                 : (trade.getEntryPrice() - trade.getExitPrice()) * trade.getLotSize();
     }
 
-    private double calculateProfit(Trade trade) {
-        return (trade.getTradeDirection() == TradeDirection.BUY)
-                ? (trade.getExitPrice() - trade.getEntryPrice()) * trade.getLotSize()
-                : (trade.getEntryPrice() - trade.getExitPrice()) * trade.getLotSize();
-    }
 }

@@ -12,5 +12,4 @@ public class TradeUpdateDto {
     private Double entryPrice;
     private Double exitPrice;
     private Double stopLoss;
-    private Double lotSize;
 }
