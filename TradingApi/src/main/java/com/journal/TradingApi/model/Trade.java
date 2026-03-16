@@ -34,16 +34,32 @@ public class Trade {
     @Column(nullable = false)
     private TradeDirection tradeDirection; // buy or sell
 
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private StrategyType strategyType;
+
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private SessionType sessionType;
+
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private TradeStatus tradeStatus;
+
+    private LocalDateTime tradeDate;
+
+    @Column(length = 1000)
+    private String notes;
+
+
+
+
     @Column(nullable = false)
     private Double profitLoss;
 
     @Column(nullable = false)
     private Double riskReward;
 
-    private LocalDateTime tradeDate;
-
-    @Column(length = 1000)
-    private String notes;
 
     @ManyToOne
     @JoinColumn(name = "user_id", nullable = false)
